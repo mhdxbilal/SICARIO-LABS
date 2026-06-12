@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Flying Crow / Raven in the Top-Left background -->
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 14,24 
+                          C 16,21 19,23 21,26 
+                          C 23,24 25,24 28,26 
+                          C 26,27 24,28 22,28 
+                          C 20,29 18,31 17,33 
+                          C 16,30 15,26 14,24 Z" />
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 18,27 C 19,25 21,25 22,27 C 21,28 20,28 18,27 Z" />
+
+    <!-- Katana / Sword strapped to the rider's back -->
+    <!-- Blade/Hilt diagonal line from (29,54) crossing through (36,36) to hilt at (38,28) -->
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 29,52 L 31,52 L 39,26 L 37,26 " />
+    <!-- Handguard (Tsuba) and sword hilt wrapping -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 36,29 C 35,28 36,27 38,27"
+        android:strokeWidth="1.2"
+        android:strokeColor="#0D0D11" />
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 38,27 L 41,20 L 42.5,21 L 39.5,28 Z" />
+
+    <!-- The Motorcycle (Rear Wheel) -->
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 24,78 A 12,12 0 1,0 48,78 A 12,12 0 1,0 24,78" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 29,78 A 7,7 0 1,0 43,78 A 7,7 0 1,0 29,78" />
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 33,78 A 3,3 0 1,0 39,78 A 3,3 0 1,0 33,78" />
+
+    <!-- The Motorcycle (Front Wheel) -->
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 72,78 A 12,12 0 1,0 96,78 A 12,12 0 1,0 72,78" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 77,78 A 7,7 0 1,0 91,78 A 7,7 0 1,0 77,78" />
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 81,78 A 3,3 0 1,0 87,78 A 3,3 0 1,0 81,78" />
+
+    <!-- Motorcycle Frame, Tank, Engine, Exhaust, and Suspensions -->
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 46,78 
+                          L 52,62 
+                          L 70,62 
+                          L 82,78 
+                          L 80,80 
+                          L 68,66 
+                          L 50,80 Z" />
+    <!-- Gas Tank & Seats -->
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 40,64 C 42,60 48,58 56,58 C 62,58 66,60 68,64 L 40,64 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 52,60 C 54,59 58,59 60,60"
+        android:strokeWidth="1.2"
+        android:strokeColor="#0D0D11" />
+
+    <!-- Motorcycle Fork / Handlebars -->
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 84,78 L 74,54 L 72,55 L 82,79 Z" />
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 71,54 C 70,54 71,52 75,52 C 77,52 76,54 75,55 Z" />
+
+    <!-- The Rider (Hunched Back, Legs, Arms) -->
+    <!-- Torso and Legs -->
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 41,63 
+                          C 38,52 42,42 48,39 
+                          C 52,38 54,42 52,48 
+                          L 52,63 Z" />
+    <!-- Sleeveless Arm reaching handlebar -->
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 48,43 L 64,52 L 67,54 L 65,56 L 47,46 Z" />
+    <!-- White skin contrast on arm -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 50,44 L 62,51 L 61,53 L 49,46 Z" />
+
+    <!-- The Rider's Tactical Helmet -->
+    <!-- Dome of the helmet -->
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 46,36 
+                          C 43,36 43,26 48,25 
+                          C 54,24 57,28 56,35 
+                          C 54,39 49,38 46,36 Z" />
+    <!-- Helmet Mask / Gas-mask filter protrusions (front of the helmet) -->
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 53,32 L 59,35 L 57,37 L 52,35 Z" />
+    <path
+        android:fillColor="#0D0D11"
+        android:pathData="M 56,35 L 58,39 L 55,40 L 53,36 Z" />
+
+    <!-- Visor Highlight (White light reflection) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 50,29 C 52,29 53,31 53,33 C 51,34 50,32 50,29 Z" />
+
+    <!-- Small white/red wire loops detail on helmet -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M 45,30 C 43,30 42,32 44,34"
+        android:strokeWidth="0.8"
+        android:strokeColor="#FFFFFF" />
+
+</vector>

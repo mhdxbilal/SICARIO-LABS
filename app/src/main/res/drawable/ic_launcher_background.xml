@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Bold Crimson Red Backdrop -->
+    <path
+        android:fillColor="#E5112B"
+        android:pathData="M0,0h108v108h-108z" />
+
+    <!-- Rising Sun / White Sun disk on the bottom right (as in original image) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 102 82 a 20 20 0 1 0 -13 25" />
+
+    <!-- Artistic white splatters and splash trails along the bottom left -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 0 108 L 45 108 L 22 88 L 15 94 L 18 85 L 0 74 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 28 92 L 32 96 L 30 100 L 25 98 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 10 80 L 12 82 L 10 84 L 8 82 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 40 105 L 42 107 L 39 108 L 37 106 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 52 102 L 54 104 L 51 106 L 49 103 Z" />
+</vector>

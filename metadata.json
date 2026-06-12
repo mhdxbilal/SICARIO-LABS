@@ -1,0 +1,6 @@
+{
+  "name": "Sicario Labs",
+  "description": "Zero-lag high performance media player featuring AMOLED Dark theme, advanced gesture controls, hardware decoding preference, track switching, and local video scans.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

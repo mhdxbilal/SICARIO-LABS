@@ -39,6 +39,8 @@ object PlayerSettings {
     private const val KEY_EQUALIZER_ENABLED = "equalizer_enabled"
     private const val KEY_EQUALIZER_BAND_PREFIX = "equalizer_band_"
     private const val KEY_DECODER_MODE = "decoder_mode"
+    private const val KEY_SEAMLESS_TRANSITIONS = "seamless_transitions"
+    private const val KEY_AUTO_RESCAN = "auto_rescan"
 
     private fun getPrefs(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -129,4 +131,10 @@ object PlayerSettings {
 
     fun getDecoderMode(context: Context): String = getPrefs(context).getString(KEY_DECODER_MODE, "hardware") ?: "hardware"
     fun setDecoderMode(context: Context, value: String) = getPrefs(context).edit().putString(KEY_DECODER_MODE, value).apply()
+
+    fun getSeamlessTransitions(context: Context): Boolean = getPrefs(context).getBoolean(KEY_SEAMLESS_TRANSITIONS, false)
+    fun setSeamlessTransitions(context: Context, value: Boolean) = getPrefs(context).edit().putBoolean(KEY_SEAMLESS_TRANSITIONS, value).apply()
+
+    fun getAutoRescan(context: Context): Boolean = getPrefs(context).getBoolean(KEY_AUTO_RESCAN, true)
+    fun setAutoRescan(context: Context, value: Boolean) = getPrefs(context).edit().putBoolean(KEY_AUTO_RESCAN, value).apply()
 }

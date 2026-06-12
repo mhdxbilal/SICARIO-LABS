@@ -21,6 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import com.example.data.settings.PlayerSettings
 
 @Composable
@@ -355,6 +359,17 @@ fun PlayerSettingsDialog(
                         } else if (activeTab == 2) {
                             // Section 3: Audio Equalizer Settings
                             var eqEnabled by remember { mutableStateOf(PlayerSettings.getEqualizerEnabled(context)) }
+                            var eqValues by remember {
+                                mutableStateOf(
+                                    listOf(
+                                        PlayerSettings.getEqualizerBand(context, 0),
+                                        PlayerSettings.getEqualizerBand(context, 1),
+                                        PlayerSettings.getEqualizerBand(context, 2),
+                                        PlayerSettings.getEqualizerBand(context, 3),
+                                        PlayerSettings.getEqualizerBand(context, 4)
+                                    )
+                                )
+                            }
 
                             SettingCheckbox(
                                 title = "Enable Audio Equalizer",
@@ -366,36 +381,87 @@ fun PlayerSettingsDialog(
                                 }
                             )
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
 
                             Text(
-                                text = "Frequency Bands Gain",
-                                fontSize = 15.sp,
-                                color = MaterialTheme.colorScheme.primary,
+                                text = "Acoustic Equalizer Presets",
+                                fontSize = 14.sp,
+                                color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
 
-                            // 5 system Equalizer frequency bands indices (60 Hz, 230 Hz, 910 Hz, 4 kHz, 14 kHz)
-                            val bands = listOf("60 Hz", "230 Hz", "910 Hz", "4 kHz", "14 kHz")
-                            bands.forEachIndexed { index, bandFreqLabel ->
-                                var sliderVal by remember(eqEnabled) {
-                                    mutableStateOf(PlayerSettings.getEqualizerBand(context, index))
-                                }
-
-                                SettingSlider(
-                                    title = bandFreqLabel,
-                                    description = "${if (sliderVal >= 0f) "+" else ""}${"%.1f".format(sliderVal)} dB",
-                                    value = sliderVal,
-                                    valueRange = -15f..15f,
-                                    steps = 30,
-                                    onValueChange = {
-                                        if (eqEnabled) {
-                                            sliderVal = it
-                                            PlayerSettings.setEqualizerBand(context, index, it)
-                                        }
-                                    }
+                            // Horizontally Scrollable Preset Selectors
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .horizontalScroll(rememberScrollState())
+                                    .padding(vertical = 4.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                val presets = listOf(
+                                    "Flat" to listOf(0f, 0f, 0f, 0f, 0f),
+                                    "Bass Boost" to listOf(10f, 7f, 1f, 0f, -3f),
+                                    "Vocal" to listOf(-4f, 1f, 8f, 7f, 2f),
+                                    "Rock" to listOf(6f, 3f, -2f, 3f, 7f),
+                                    "Jazz" to listOf(4f, 2f, -3f, 2f, 5f),
+                                    "Classical" to listOf(4f, 2f, -1f, 3f, 4f)
                                 )
+                                presets.forEach { (presetName, presetVals) ->
+                                    val isCurrentPreset = eqValues.map { "%.1f".format(it) } == presetVals.map { "%.1f".format(it) }
+                                    Button(
+                                        onClick = {
+                                            if (eqEnabled) {
+                                                eqValues = presetVals
+                                                presetVals.forEachIndexed { idx, valDb ->
+                                                    PlayerSettings.setEqualizerBand(context, idx, valDb)
+                                                }
+                                            }
+                                        },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (isCurrentPreset) MaterialTheme.colorScheme.primary else Color(0xFF1E1E22)
+                                        ),
+                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                        modifier = Modifier.height(32.dp),
+                                        shape = RoundedCornerShape(16.dp)
+                                    ) {
+                                        Text(presetName, fontSize = 12.sp, color = if (isCurrentPreset) Color.Black else Color.White, fontWeight = FontWeight.SemiBold)
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Text(
+                                text = "5-Band Graphic Equalizer",
+                                fontSize = 14.sp,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+
+                            // Graphic Equalizer row
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color(0xFF0C0C0E), RoundedCornerShape(12.dp))
+                                    .padding(vertical = 16.dp, horizontal = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                val frequencies = listOf("60 Hz", "230 Hz", "910 Hz", "4 kHz", "14 kHz")
+                                frequencies.forEachIndexed { index, bandFreqLabel ->
+                                    VerticalEqualizerSlider(
+                                        value = eqValues[index],
+                                        enabled = eqEnabled,
+                                        onValueChange = { newVal ->
+                                            val updated = eqValues.toMutableList()
+                                            updated[index] = newVal
+                                            eqValues = updated
+                                            PlayerSettings.setEqualizerBand(context, index, newVal)
+                                        },
+                                        label = bandFreqLabel
+                                    )
+                                }
                             }
                         } else if (activeTab == 3 && onSortChanged != null) {
                             // Section 4: Display & Sorting Configurations
@@ -470,9 +536,50 @@ fun PlayerSettingsDialog(
                             )
                         } else if (activeTab == 4 && onAutomatedScan != null) {
                             // Section 5: Library & Scanning Configurations
+                            var autoRescanVal by remember { mutableStateOf(PlayerSettings.getAutoRescan(context)) }
+
+                            Text(
+                                text = "Media Library",
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+
+                            // Media library folders
                             SettingClickable(
-                                title = "Automated Storage Sync",
-                                value = "Run basic local automated check",
+                                title = "Media library folders",
+                                value = "Select directories to include in the media library",
+                                onClick = {
+                                    onFolderPickerLaunch?.invoke()
+                                    onDismiss()
+                                }
+                            )
+
+                            // Auto rescan
+                            SettingCheckbox(
+                                title = "Auto rescan",
+                                description = "Automatically scan device for new or deleted media at application startup",
+                                checked = autoRescanVal,
+                                onCheckedChange = {
+                                    autoRescanVal = it
+                                    PlayerSettings.setAutoRescan(context, it)
+                                }
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Text(
+                                text = "Manual Scanning Shortcuts",
+                                fontSize = 14.sp,
+                                color = Color.Gray,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+
+                            SettingClickable(
+                                title = "Run Automated Storage Sync",
+                                value = "Instantly scan local files on your internal storage",
                                 onClick = {
                                     onAutomatedScan.invoke()
                                     onDismiss()
@@ -480,28 +587,10 @@ fun PlayerSettingsDialog(
                             )
 
                             SettingClickable(
-                                title = "Deep Local Storage Scan",
-                                value = "Perform comprehensive media sweep",
+                                title = "Run Deep Local Sweep",
+                                value = "Perform a thorough recursive file sweep of selected folders",
                                 onClick = {
                                     onDeepScan?.invoke()
-                                    onDismiss()
-                                }
-                            )
-
-                            SettingClickable(
-                                title = "Select Specific Folder Playlist",
-                                value = "Import folder directory directly",
-                                onClick = {
-                                    onFolderPickerLaunch?.invoke()
-                                    onDismiss()
-                                }
-                            )
-
-                            SettingClickable(
-                                title = "Import Single Video File",
-                                value = "Select manual video path index",
-                                onClick = {
-                                    onDocumentPickerLaunch?.invoke()
                                     onDismiss()
                                 }
                             )
@@ -850,3 +939,110 @@ fun SettingSlider(
         }
     }
 }
+
+@Composable
+fun VerticalEqualizerSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    val density = LocalDensity.current
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.padding(horizontal = 2.dp)
+    ) {
+        Text(
+            text = "${if (value >= 0f) "+" else ""}${"%.1f".format(value)}",
+            fontSize = 10.sp,
+            color = if (enabled) MaterialTheme.colorScheme.primary else Color.Gray,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.width(42.dp)
+        )
+        
+        Spacer(modifier = Modifier.height(6.dp))
+        
+        BoxWithConstraints(
+            modifier = Modifier
+                .width(36.dp)
+                .height(130.dp)
+                .background(Color(0xFF141416), RoundedCornerShape(18.dp))
+                .padding(vertical = 10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            val maxHeightPx = constraints.maxHeight.toFloat()
+            Box(
+                modifier = Modifier
+                    .width(4.dp)
+                    .fillMaxHeight()
+                    .background(Color(0xFF222225), RoundedCornerShape(2.dp))
+            )
+            
+            val normalizedVal = ((value + 15f) / 30f).coerceIn(0f, 1f)
+            val thumbY = (1.0f - normalizedVal) * maxHeightPx
+            
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(enabled) {
+                        if (!enabled) return@pointerInput
+                        detectDragGestures { change, dragAmount ->
+                            change.consume()
+                            val newY = (change.position.y).coerceIn(0f, maxHeightPx)
+                            val newNormalized = 1.0f - (newY / maxHeightPx)
+                            val newValue = -15f + (newNormalized * 30f)
+                            onValueChange(newValue.coerceIn(-15f, 15f))
+                        }
+                    }
+            ) {
+                val centerY = maxHeightPx / 2f
+                val activeTrackTop = minOf(centerY, thumbY)
+                val activeTrackBottom = maxOf(centerY, thumbY)
+                val activeTrackHeightDp = with(density) { (activeTrackBottom - activeTrackTop).toDp() }
+                val activeTrackTopDp = with(density) { activeTrackTop.toDp() }
+                
+                if (activeTrackHeightDp > 0.dp) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = activeTrackTopDp)
+                            .width(4.dp)
+                            .height(activeTrackHeightDp)
+                            .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
+                    )
+                }
+
+                val thumbTopDp = with(density) { thumbY.toDp() }
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = (thumbTopDp - 10.dp).coerceAtLeast(0.dp))
+                        .size(20.dp)
+                        .background(
+                            color = if (enabled) MaterialTheme.colorScheme.primary else Color.Gray,
+                            shape = RoundedCornerShape(10.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .background(Color.Black, RoundedCornerShape(3.dp))
+                    )
+                }
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(6.dp))
+        
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            color = if (enabled) Color.White else Color.Gray,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+

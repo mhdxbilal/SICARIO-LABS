@@ -27,13 +27,14 @@ class MainActivity : ComponentActivity() {
         
         // 1. Initialize DB and classes
         val database = AppDatabase.getDatabase(this)
-        val repository = VideoRepository(database.videoDao())
+        val repository = VideoRepository(database.videoDao(), database.audioDao())
         val scanner = MediaStoreVideoScanner(this)
         val deepScanner = com.example.data.scanner.RecursiveDirectoryScanner()
+        val audioScanner = com.example.data.scanner.MediaStoreAudioScanner(this)
         
         val viewModel = ViewModelProvider(
             this,
-            VideoPlayerViewModelFactory(repository, scanner, deepScanner)
+            VideoPlayerViewModelFactory(repository, scanner, deepScanner, audioScanner)
         )[VideoPlayerViewModel::class.java]
 
         enableEdgeToEdge()

@@ -147,13 +147,22 @@ object GeminiService {
 
 object VideoSummaryCache {
     private const val PREFS_NAME = "video_summaries_cache_prefs"
+    private val memoryCache = java.util.concurrent.ConcurrentHashMap<String, String>()
 
     fun getSummary(context: android.content.Context, videoTitle: String): String? {
+        val cachedInMemory = memoryCache[videoTitle]
+        if (cachedInMemory != null) return cachedInMemory
+
         val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
-        return prefs.getString(videoTitle, null)
+        val cachedInPrefs = prefs.getString(videoTitle, null)
+        if (cachedInPrefs != null) {
+            memoryCache[videoTitle] = cachedInPrefs
+        }
+        return cachedInPrefs
     }
 
     fun saveSummary(context: android.content.Context, videoTitle: String, summary: String) {
+        memoryCache[videoTitle] = summary
         val prefs = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
         prefs.edit().putString(videoTitle, summary).apply()
     }

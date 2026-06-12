@@ -332,7 +332,7 @@ fun VideoPlayerView(
 
     DisposableEffect(player, eqEnabled, audioSessionIdState) {
         var eq: android.media.audiofx.Equalizer? = null
-        if (eqEnabled && audioSessionIdState != android.media.AudioManager.AUDIO_SESSION_ID_GENERATE) {
+        if (eqEnabled && audioSessionIdState > 0) {
             try {
                 eq = android.media.audiofx.Equalizer(0, audioSessionIdState).apply {
                     enabled = true

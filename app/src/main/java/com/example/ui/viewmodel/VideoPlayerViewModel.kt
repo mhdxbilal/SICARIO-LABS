@@ -9,8 +9,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.data.database.VideoEntity
+import com.example.data.database.AudioEntity
 import com.example.data.database.VideoRepository
 import com.example.data.scanner.MediaStoreVideoScanner
+import com.example.data.scanner.MediaStoreAudioScanner
 import com.example.data.scanner.RecursiveDirectoryScanner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -28,10 +30,11 @@ data class FolderPlaylist(
 class VideoPlayerViewModel(
     private val repository: VideoRepository,
     private val scanner: MediaStoreVideoScanner,
-    private val deepScanner: RecursiveDirectoryScanner
+    private val deepScanner: RecursiveDirectoryScanner,
+    private val audioScanner: MediaStoreAudioScanner
 ) : ViewModel() {
 
-    // Lists from Room
+    // Lists from Room (Videos)
     val allVideos: StateFlow<List<VideoEntity>> = repository.allVideos
         .stateIn(
             scope = viewModelScope,
@@ -65,6 +68,28 @@ class VideoPlayerViewModel(
             initialValue = emptyList()
         )
 
+    // Lists from Room (Audio / Songs)
+    val allAudios: StateFlow<List<AudioEntity>> = repository.allAudios
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    val recentAudios: StateFlow<List<AudioEntity>> = repository.recentAudios
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    val favoriteAudios: StateFlow<List<AudioEntity>> = repository.favoriteAudios
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
     // Scanning Status
     private val _scanState = MutableStateFlow(ScanState.IDLE)
     val scanState: StateFlow<ScanState> = _scanState.asStateFlow()
@@ -84,6 +109,13 @@ class VideoPlayerViewModel(
     private val _playbackQueue = MutableStateFlow<List<VideoEntity>>(emptyList())
     val playbackQueue: StateFlow<List<VideoEntity>> = _playbackQueue.asStateFlow()
 
+    // Active AUDIO playback selection
+    private val _playingAudio = MutableStateFlow<AudioEntity?>(null)
+    val playingAudio: StateFlow<AudioEntity?> = _playingAudio.asStateFlow()
+
+    private val _audioPlaybackQueue = MutableStateFlow<List<AudioEntity>>(emptyList())
+    val audioPlaybackQueue: StateFlow<List<AudioEntity>> = _audioPlaybackQueue.asStateFlow()
+
     init {
         // Ready
     }
@@ -98,7 +130,11 @@ class VideoPlayerViewModel(
             try {
                 val videos = scanner.scanVideosOnDevice()
                 repository.insertVideos(videos)
-                _scannedCount.value = videos.size
+                
+                val audios = audioScanner.scanAudioOnDevice()
+                repository.insertAudios(audios)
+                
+                _scannedCount.value = videos.size + audios.size
                 _scanState.value = ScanState.SUCCESS
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -351,17 +387,69 @@ class VideoPlayerViewModel(
             selectVideo(queue[currentIndex - 1], queue)
         }
     }
+
+    // Audio Playback Controllers
+    fun selectAudio(audio: AudioEntity, queueList: List<AudioEntity> = emptyList()) {
+        _playingVideo.value = null // turn off full screen video player
+        _playingAudio.value = audio
+        if (queueList.isNotEmpty()) {
+            _audioPlaybackQueue.value = queueList
+        } else {
+            _audioPlaybackQueue.value = listOf(audio)
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateAudioPlaybackPosition(audio.uriString, audio.lastPlayedPosition)
+        }
+    }
+
+    fun closeAudioPlayer() {
+        _playingAudio.value = null
+    }
+
+    fun toggleAudioFavorite(audio: AudioEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.updateAudioFavorite(audio.uriString, !audio.isFavorite)
+        }
+    }
+
+    fun deleteAudio(uri: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteAudio(uri)
+            if (_playingAudio.value?.uriString == uri) {
+                _playingAudio.value = null
+            }
+        }
+    }
+
+    fun playNextAudio() {
+        val current = _playingAudio.value ?: return
+        val queue = _audioPlaybackQueue.value
+        val currentIndex = queue.indexOfFirst { it.uriString == current.uriString }
+        if (currentIndex != -1 && currentIndex < queue.size - 1) {
+            selectAudio(queue[currentIndex + 1], queue)
+        }
+    }
+
+    fun playPreviousAudio() {
+        val current = _playingAudio.value ?: return
+        val queue = _audioPlaybackQueue.value
+        val currentIndex = queue.indexOfFirst { it.uriString == current.uriString }
+        if (currentIndex != -1 && currentIndex > 0) {
+            selectAudio(queue[currentIndex - 1], queue)
+        }
+    }
 }
 
 class VideoPlayerViewModelFactory(
     private val repository: VideoRepository,
     private val scanner: MediaStoreVideoScanner,
-    private val deepScanner: RecursiveDirectoryScanner
+    private val deepScanner: RecursiveDirectoryScanner,
+    private val audioScanner: MediaStoreAudioScanner
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(VideoPlayerViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return VideoPlayerViewModel(repository, scanner, deepScanner) as T
+            return VideoPlayerViewModel(repository, scanner, deepScanner, audioScanner) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

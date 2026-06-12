@@ -13,9 +13,10 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
       - name: Build APK
-        run: gradle assembleDebug
+        run: gradle assembleDebug -Djava.awt.headless=true --no-daemon
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+          

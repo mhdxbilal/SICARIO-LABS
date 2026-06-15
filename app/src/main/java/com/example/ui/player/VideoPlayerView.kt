@@ -16,6 +16,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -702,7 +703,7 @@ fun VideoPlayerView(
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Go Back")
                         }
@@ -904,7 +905,7 @@ fun VideoPlayerView(
                             },
                             modifier = Modifier.background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
                         ) {
-                            Icon(Icons.Default.Send, contentDescription = "Send", tint = Color.Black)
+                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = Color.Black)
                         }
                     }
                 }
@@ -1059,7 +1060,7 @@ fun VideoPlayerView(
                         onClick = onClose,
                         modifier = Modifier.testTag("player_back_btn")
                     ) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Close Player", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Close Player", tint = Color.White)
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -1580,7 +1581,7 @@ fun HUDOverlay(
                 }
                 GestureType.VERTICAL -> {
                     Icon(
-                        imageVector = if (!isLeft) Icons.Default.VolumeUp else Icons.Default.Brightness5,
+                        imageVector = if (!isLeft) Icons.AutoMirrored.Filled.VolumeUp else Icons.Filled.Brightness5,
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier.size(36.dp)

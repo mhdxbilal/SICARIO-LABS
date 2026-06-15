@@ -119,7 +119,7 @@ fun MediaDashboardScreen(
 
     DisposableEffect(audioPlayer, eqEnabled, audioSessionIdState) {
         var eq: android.media.audiofx.Equalizer? = null
-        if (eqEnabled && audioSessionIdState > 0) {
+        if (eqEnabled && audioSessionIdState != android.media.AudioManager.AUDIO_SESSION_ID_GENERATE) {
             try {
                 eq = android.media.audiofx.Equalizer(0, audioSessionIdState).apply {
                     enabled = true
@@ -1972,14 +1972,24 @@ fun VideoItemRow(
                         }
                 ) {
                     Box(contentAlignment = Alignment.Center) {
+                        coil.compose.AsyncImage(
+                            model = coil.request.ImageRequest.Builder(androidx.compose.ui.platform.LocalContext.current)
+                                .data(video.uriString)
+                                .crossfade(true)
+                                .decoderFactory(coil.decode.VideoFrameDecoder.Factory())
+                                .build(),
+                            contentDescription = "Video Thumbnail",
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .drawBehind {
                                     val brush = androidx.compose.ui.graphics.Brush.verticalGradient(
                                         colors = listOf(
-                                            Color.White.copy(alpha = 0.08f),
-                                            Color.Transparent
+                                            Color.Transparent,
+                                            Color.Black.copy(alpha = 0.5f)
                                         )
                                     )
                                     drawRect(brush = brush)
@@ -2491,14 +2501,24 @@ fun VideoItemGrid(
                     }
             ) {
                 Box(contentAlignment = Alignment.Center) {
+                    coil.compose.AsyncImage(
+                        model = coil.request.ImageRequest.Builder(androidx.compose.ui.platform.LocalContext.current)
+                            .data(video.uriString)
+                            .crossfade(true)
+                            .decoderFactory(coil.decode.VideoFrameDecoder.Factory())
+                            .build(),
+                        contentDescription = "Video Thumbnail",
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .drawBehind {
                                 val brush = androidx.compose.ui.graphics.Brush.verticalGradient(
                                     colors = listOf(
-                                        Color.White.copy(alpha = 0.08f),
-                                        Color.Transparent
+                                        Color.Transparent,
+                                        Color.Black.copy(alpha = 0.5f)
                                     )
                                 )
                                 drawRect(brush = brush)
